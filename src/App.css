@@ -36,3 +36,20 @@
     transform: rotate(360deg);
   }
 }
+
+.app-title {
+  padding-bottom: 100px;
+}
+
+.input-form {
+  margin-top: 30px;
+}
+
+.button-selector {
+  margin-top: 30px;
+}
+
+.error-alert {
+  font-size: 18px;
+  padding: 1px;
+}

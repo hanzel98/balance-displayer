@@ -1,8 +1,9 @@
 import React, { useState, useRef } from 'react';
 import { Container, Button, Form, Alert } from 'react-bootstrap';
 import { getBalance, getSymbol } from '../helpers/contractInteraction';
-import { isEthereumAddress } from '../helpers/web3Connection';
+import { isEthereumAddress, getAddressFromENS } from '../helpers/web3Connection';
 import { PREPARE_INPUTS, DISPLAY_RESULT } from '../constants/types';
+import '../App.css';
 
 const Request = ({
     contractAddress,
@@ -20,36 +21,47 @@ const Request = ({
     const [tokenReady, setTokenReady] = useState(false);
     const [validated, setValidated] = useState(false);
     const [lockInputs, setLockInputs] = useState(false);
+    const [disabled, setDisabled] = useState(false);
     const formRefWallet = useRef(null);
     const formRefContract = useRef(null);
 
-    const validateWalletFormat = (event) => {
+    const validateWalletFormat = async (event) => {
         const address = event.target.value;
-        console.log('Wallet address:', address)
-        setWalletAddress(address); // This could be set until GET BALANCE IS CLICKED
-        if(isEthereumAddress(address)){
-            console.log('THIS WAY1')
-            setWalletClass('text-success');
-            setWalletReady(true);
-        }else{
-            console.log('THIS WAY2')
-            setWalletClass('text-danger');
+        if(address === '') {
+            setWalletAddress(address);
+            setWalletClass('');
             setWalletReady(false);
+
+        } else {
+            const addressFromENS = await getAddressFromENS(address);
+            const isValid = isEthereumAddress(address) || addressFromENS;
+            if(isValid){
+                addressFromENS ? setWalletAddress(addressFromENS): setWalletAddress(address);
+                setWalletClass('text-success');
+                setWalletReady(true);
+            }else{
+                setWalletAddress(address);
+                setWalletClass('text-danger');
+                setWalletReady(false);
+            }
         }
     } 
 
-    const validateTokenFormat = (event) => {
+    const validateTokenFormat = async (event) => {
         const address = event.target.value;
-        console.log('token address:', address)
-        setContractAddress(address); // This could be set until GET BALANCE IS CLICKED
         if(address === '') {
+            setContractAddress(address);
             setTokenClass('');
             setTokenReady(false);
         } else {
-            if(isEthereumAddress(address)){
+            const addressFromENS = await getAddressFromENS(address);
+            const isValid = isEthereumAddress(address) || addressFromENS;
+            if(isValid){
+                addressFromENS ? setContractAddress(addressFromENS): setContractAddress(address);
                 setTokenClass('text-success');
                 setTokenReady(true);
             }else{
+                setContractAddress(address);
                 setTokenClass('text-danger');
                 setTokenReady(false);
             }
@@ -74,19 +86,20 @@ const Request = ({
     };
 
     const buttonSelector = () => {
-        const style={'marginTop': '30px'};
         if(screen === DISPLAY_RESULT) {
             return (
             <Button 
-                style={style} 
+                className="button-selector"
                 value={Form}
+                disabled={false}
                 onClick={(event) => { 
                     event.preventDefault();
+                    setDisabled(false);
                     setScreen(PREPARE_INPUTS)
                     setWalletAddress('');
                     setContractAddress('');
-                    setTokenReady(true);
                     setWalletReady(false);
+                    setTokenReady(false);
                     handleReset();
                 }
             }>
@@ -95,15 +108,14 @@ const Request = ({
         }
         if(screen === PREPARE_INPUTS) {
             return (
-                <Button 
-                    style={style}
+                <Button
+                    className="button-selector"
                     value={Form}
-                    disabled={!(walletReady && tokenReady)}
+                    disabled={!(walletReady && tokenReady) || disabled}
                     onClick={(event) => {
                         event.preventDefault();
-                        if(walletReady && tokenReady){
-                            updateBalance();
-                        }
+                        setDisabled(true);
+                        updateBalance();
                     }
                 }>
                     Get Balance
@@ -113,9 +125,10 @@ const Request = ({
     }
 
     const alert = (type) => {
-        if((type === 'wallet' || type === 'token') && walletClass === 'text-danger'){
+        if((type === 'Wallet' && walletClass === 'text-danger')||
+        (type === 'Token' && tokenClass === 'text-danger')){
             return (
-                <Alert style={{'font-size': '18px', 'padding': '1px'}} variant={'danger'}>
+                <Alert className="error-alert" variant={'danger'}>
                     Invalid {type} Address
                 </Alert>
             );
@@ -127,7 +140,7 @@ const Request = ({
     }
     return(
         <Container>
-            <Form style={{'marginTop': '30px'}} ref={formRefWallet} validated={validated} onSubmit={e => {submitHandler(e)}}>
+            <Form className="input-form" ref={formRefWallet} validated={validated} onSubmit={e => {submitHandler(e)}}>
                 <Form.Group controlId="formWalletAddress">
                 <Form.Label>Wallet Address - Token owner:</Form.Label>
                 <Form.Control
@@ -138,9 +151,9 @@ const Request = ({
                     placeholder="0xdAC17F958D2ee523a2206206994597C13D831ec7"
                 />
                 </Form.Group>
-                {alert()}
+                {alert('Wallet')}
             </Form>
-            <Form style={{'marginTop': '30px'}} ref={formRefContract} validated={validated} onSubmit={e => {submitHandler(e)}}>
+            <Form className="input-form" ref={formRefContract} validated={validated} onSubmit={e => {submitHandler(e)}}>
                 <Form.Group controlId="formContractAddress">
                 <Form.Label>Token Contract Address</Form.Label>
                 <Form.Control
@@ -150,7 +163,7 @@ const Request = ({
                     onInput={(e)=> {validateTokenFormat(e)}}
                     placeholder="0xdAC17F958D2ee523a2206206994597C13D831ec7"
                 />
-                {alert()}
+                {alert('Token')}
                 </Form.Group>
             </Form>
             {buttonSelector()}

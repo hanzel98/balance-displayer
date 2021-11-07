@@ -18,6 +18,7 @@ const getWebSocketUrl = () => {
 }
 
 export const connectWeb3 = () => {
+    if (isConnected()) return web3;
     const provider = new Web3.providers.WebsocketProvider(getWebSocketUrl());
     provider.on('error', console.error);
     provider.on('connect', () => console.log('Blockchain Connected ...'));
@@ -38,12 +39,21 @@ export const connectWeb3 = () => {
 
 // Takes a text input a returns true if it is an address and false if not
 export const isEthereumAddress = textInput => {
-    if (!isConnected()) { 
-        connectWeb3()
-    };
+    if (!isConnected()) connectWeb3();
     return web3.utils.isAddress(textInput);
-
 }
+
+// Converts ENS to a valid address
+export const getAddressFromENS = async (textInput) => {
+    if (!isConnected()) connectWeb3();
+    try {
+        const address = await web3.eth.ens.getAddress(textInput);
+        return address;
+    } catch(error){
+        return '';
+    }
+}
+ 
 
 export const closeWeb3Connection = () => {
     web3.currentProvider.connection.close();
