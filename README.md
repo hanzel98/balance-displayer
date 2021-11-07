@@ -1,70 +1,42 @@
-# Getting Started with Create React App
+# Balance Displayer
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+This project can be used to get the balance that a given Account Address has in a given Token Smart Contract. This is a very common task in the blockchain ecosystem. Usually, wallets like Metamask give you only your account information. In this case the user does not need to be the owner of the tokens to know the balance.
 
-## Available Scripts
+Use case examples:
+- It could be used to know if an account has enough balance to perfom some blockchain operation. 
+- I can be used to check if a recipient's address received the tokens that were sent.
 
-In the project directory, you can run:
+## How to setup the project
 
-### `yarn start`
+1. Clone this repository.
+2. Run `npm install` inside the root folder of the project.
+3. Go to the [.env](https://github.com/hanzel98/balance-displayer/blob/master/.env) and change the REACT_APP_NETWORK variable value to the network you want to use. Posible opcionts are: `mainnet, rinkeby, ropsten, kovan` the default is set to `mainnet`. It is worth noting that it is currently using personal Infura websocket connections. This was done intentionally to make the testing easier for the test reviewer.
+4. Run `npm start` to start the server. The application interface will open in: http://localhost:3000 . If you have that port running something else, please stop that process and try again.
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+## How to use it
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+- Wallet Address: Insert here the address of the owner of the tokens.
+- Token Contract Address: This is the contract were the tokens can be found. It must be an ERC20 smart contract implementation. It varies depending on the network in use. 
+- There is a validation for real Ethereum addresses in both inputs. If a wrong value is 
+provided the UI will show an alert indicating it.
+- After inserting both valid ethereum addresses the `Get Balance` button will be available. Click on the button to request the token balance. This process does a call to the blockchain, so, it takes some seconds to retrieve the data.
+- The balance and the token symbol will be displayed above the form.
+- The addresses in the form cannot be changed while it is showing the balance. This is done to avoid confusion about what addresses were used.
+- It is possible to repeat the whole process by clicking the button `Clear Inputs`.
 
-### `yarn test`
+A video demonstration can be found here: [Video](https://youtu.be/gl_X7Weuyko) (Only people with this link can see it)
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+### Important considerations
+Ethereum Name Service compatibility was implemented for both inputs. It is possible to insert a real ENS value and the application will convert it to the correspondig ethereum address. The input validation allows real ENS values, so it will not show an error.
 
-### `yarn build`
+### This how the application looks like before inserting the values:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+![Screenshot](screenshot1.png)
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+### This how the application looks while showing the balance:
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+![Screenshot](screenshot2.png)
 
-### `yarn eject`
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
-
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
-
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
-
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
-
-## Learn More
-
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
-
-To learn React, check out the [React documentation](https://reactjs.org/).
-
-### Code Splitting
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
-
-### Analyzing the Bundle Size
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
-
-### Making a Progressive Web App
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
-
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `yarn build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+## Missing features
+- The exercise requires to show the ENS name if an Address has one. And the asociated Address of an ENS name. Instead of doing that, I'm just converting the ENS name to a Address internally. But it is still possible to use an ENS name or an Address in any field.
