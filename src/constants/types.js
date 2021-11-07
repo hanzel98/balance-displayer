@@ -1,0 +1,2 @@
+export const DISPLAY_RESULT = 'DISPLAY_RESULT';
+export const PREPARE_INPUTS = 'PREPARE_INPUTS';
